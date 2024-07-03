@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:sistem_akademik/model/model_siswa.dart';
+
+// Import modelSiswa.dart
+// import 'modelSiswa.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: AddSiswaScreen(),
+    );
+  }
+}
+
+class AddSiswaScreen extends StatefulWidget {
+  @override
+  _AddSiswaScreenState createState() => _AddSiswaScreenState();
+}
+
+class _AddSiswaScreenState extends State<AddSiswaScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController nisController = TextEditingController();
+  final TextEditingController namaController = TextEditingController();
+  final TextEditingController alamatController = TextEditingController();
+  final TextEditingController jenisKelaminController = TextEditingController();
+  final TextEditingController tanggalLahirController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController idKelasController = TextEditingController();
+
+  Future<void> _addSiswa() async {
+    final String apiUrl = "URL_API_KAMU";
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "nis": nisController.text,
+        "nama": namaController.text,
+        "alamat": alamatController.text,
+        "jenis_kelamin": jenisKelaminController.text,
+        "tanggal_lahir": tanggalLahirController.text,
+        "email": emailController.text,
+        "id_kelas": idKelasController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      ModelSiswa modelSiswa = ModelSiswa.fromJson(data);
+
+      if (modelSiswa.isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(modelSiswa.message)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(modelSiswa.message)),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal menambahkan siswa")),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tambah Siswa'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                controller: nisController,
+                decoration: InputDecoration(labelText: 'NIS'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan NIS';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: namaController,
+                decoration: InputDecoration(labelText: 'Nama'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan Nama';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: alamatController,
+                decoration: InputDecoration(labelText: 'Alamat'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan Alamat';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: jenisKelaminController,
+                decoration: InputDecoration(labelText: 'Jenis Kelamin'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan Jenis Kelamin';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: tanggalLahirController,
+                decoration: InputDecoration(labelText: 'Tanggal Lahir'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan Tanggal Lahir';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan Email';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: idKelasController,
+                decoration: InputDecoration(labelText: 'ID Kelas'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Mohon masukkan ID Kelas';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _addSiswa();
+                  }
+                },
+                child: Text('Tambah Siswa'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
